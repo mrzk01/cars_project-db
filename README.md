@@ -160,51 +160,51 @@ save_to_csv(data = customers1_table,
 
 ## Retrieve data
 - Contoh transactional query
-  ### Menambahkan satu data bid produk baru
-  ```sql
-  INSERT INTO bids(car_id, customer_id, date_bid, bid_price, bid_status)
-  VALUES (33, 5, '2024-04-04 21:35:35.058658', 200000000, 'Sent')
-  ``` 
-  ```sql
-  ALTER SEQUENCE bids_id_seq RESTART WITH 1001
-  ``` 	
-  ```sql
-  SELECT 
-	id,
-	car_id,
-	customer_id,
-	date_bid,
-	bid_price,
-	bid_status
-  FROM bids
-  ```
+### Menambahkan satu data bid produk baru
+```sql
+INSERT INTO bids(car_id, customer_id, date_bid, bid_price, bid_status)
+VALUES (33, 5, '2024-04-04 21:35:35.058658', 200000000, 'Sent')
+``` 
+```sql
+ALTER SEQUENCE bids_id_seq RESTART WITH 1001
+``` 	
+```sql
+SELECT 
+  id,
+  car_id,
+  customer_id,
+  date_bid,
+  bid_price,
+  bid_status
+FROM bids
+```
 ![](images/result_tambah_data_bid.png)
 
 
 - Contoh analytical query
-  ### Cari perbandingan tanggal customer yang melakukan bid dengan bid selanjutnya beserta harga tawar yang diberikan
-  ```sql
-  WITH ranked_bids AS(
+### Cari perbandingan tanggal customer yang melakukan bid dengan bid selanjutnya beserta harga tawar yang diberikan
+```sql
+WITH ranked_bids AS(
   SELECT
-	model,
-	customer_id,
-	date_bid,
-	bid_price
+    model,
+    customer_id,
+    date_bid,
+    bid_price
   FROM bids
   JOIN cars c on(car_id = c.id)
   WHERE model = 'Toyota Yaris'
-  )
-  SELECT 
-	model,
-	customer_id as first_cust_id,
-	LEAD(customer_id) OVER(ORDER BY date_bid) as next_cust_id,
-	date_bid as first_bid_date,
-	LEAD(date_bid) OVER(ORDER BY date_bid) as next_bid_date,
-	bid_price as first_bid_price,
-	LEAD(bid_price) OVER(ORDER BY date_bid) as next_bid_price
-  FROM ranked_bids;
-  ```
-  ![](images/result_perbandingan_tgl_cust.png)
+)
+SELECT 
+  model,
+  customer_id as first_cust_id,
+  LEAD(customer_id) OVER(ORDER BY date_bid) as next_cust_id,
+  date_bid as first_bid_date,
+  LEAD(date_bid) OVER(ORDER BY date_bid) as next_bid_date,
+  bid_price as first_bid_price,
+  LEAD(bid_price) OVER(ORDER BY date_bid) as next_bid_price
+FROM ranked_bids;
+```
+![](images/result_perbandingan_tgl_cust.png)
 
-  ## DBMS yang digunakan:
-  PostgreSQL
+## DBMS yang digunakan:
+PostgreSQL
