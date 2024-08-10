@@ -11,7 +11,7 @@
 -  Tentukan fields dan keys untuk tiap tabel
 -  Identifikasi Relasi
 
-## Implementing The Design.
+## ERD Penjualan Mobil Bekas Online
 ![](images/erd_cars_project.png)
 
 ### Syntax DDL queries
@@ -85,7 +85,7 @@ SELECT * FROM customers
 ```
 
 ## Populating the database.
-Kita akan menggunakan Faker di python untuk membuat data yang mirip seperti data asli. Sebagai contoh berikut pembuatan data dummy untuk customers
+Kita akan menggunakan Faker di python untuk membuat data yang mirip seperti data asli. Sebagai contoh berikut generate data dummy untuk customers
 ```python
 !pip install Faker
 !pip install tabulate
@@ -154,9 +154,57 @@ def save_to_csv(data, nama_file):
 save_to_csv(data = customers1_table,
             nama_file='customers')
 ```
-- Uraikan bagaimana meng-generate dummy dataset
-![](images/import data dummy.png)
-- Uraikan bagaimana cara menginputkan data ke dalam database menggunakan pgAdmin 4. 
+### Input data ke dalam database menggunakan pgAdmin 4 
+![](images/import_dummy.png)
+
 
 ## Retrieve data
-- Cantumkan contoh transactional dan analytical query yang telah dibuat.
+- Contoh transactional query
+  ### Menambahkan satu data bid produk baru
+  ```sql
+  INSERT INTO bids(car_id, customer_id, date_bid, bid_price, bid_status)
+  VALUES (33, 5, '2024-04-04 21:35:35.058658', 200000000, 'Sent')
+  ``` 
+  ```sql
+  ALTER SEQUENCE bids_id_seq RESTART WITH 1001
+  ``` 	
+  ```sql
+  SELECT 
+	id,
+	car_id,
+	customer_id,
+	date_bid,
+	bid_price,
+	bid_status
+  FROM bids
+  ```
+![](images/result_tambah_data_bid.png)
+
+
+- Contoh analytical query
+  ### Cari perbandingan tanggal customer yang melakukan bid dengan bid selanjutnya beserta harga tawar yang diberikan
+  ```sql
+  WITH ranked_bids AS(
+  SELECT
+	model,
+	customer_id,
+	date_bid,
+	bid_price
+  FROM bids
+  JOIN cars c on(car_id = c.id)
+  WHERE model = 'Toyota Yaris'
+  )
+  SELECT 
+	model,
+	customer_id as first_cust_id,
+	LEAD(customer_id) OVER(ORDER BY date_bid) as next_cust_id,
+	date_bid as first_bid_date,
+	LEAD(date_bid) OVER(ORDER BY date_bid) as next_bid_date,
+	bid_price as first_bid_price,
+	LEAD(bid_price) OVER(ORDER BY date_bid) as next_bid_price
+  FROM ranked_bids;
+  ```
+  ![](images/result_perbandingan_tgl_cust.png)
+
+  ## DBMS yang digunakan:
+  PostgreSQL
